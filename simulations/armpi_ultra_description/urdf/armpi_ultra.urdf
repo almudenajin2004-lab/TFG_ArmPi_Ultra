@@ -3,7 +3,7 @@
      Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
      For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
 <robot
-  name="44 001">
+  name="armpi_ultra">
   <link
     name="base_link">
     <inertial>
@@ -26,7 +26,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://44 001/meshes/base_link.STL" />
+          filename="meshes/base_link.STL" />
       </geometry>
       <material
         name="">
@@ -40,7 +40,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://44 001/meshes/base_link.STL" />
+          filename="meshes/base_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -66,7 +66,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://44 001/meshes/link1.STL" />
+          filename="meshes/link1.STL" />
       </geometry>
       <material
         name="">
@@ -80,13 +80,13 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://44 001/meshes/link1.STL" />
+          filename="meshes/link1.STL" />
       </geometry>
     </collision>
   </link>
   <joint
     name="joint1"
-    type="fixed">
+    type="revolute">
     <origin
       xyz="0.066956 -8.1218E-05 0.071005"
       rpy="0.0069813 0 -0.00032872" />
@@ -95,7 +95,7 @@
     <child
       link="link1" />
     <axis
-      xyz="0 0 0" />
+      xyz="0 0 1" />
     <limit
       lower="-2.09"
       upper="2.09"
@@ -124,7 +124,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://44 001/meshes/link2.STL" />
+          filename="meshes/link2.STL" />
       </geometry>
       <material
         name="">
@@ -138,7 +138,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://44 001/meshes/link2.STL" />
+          filename="meshes/link2.STL" />
       </geometry>
     </collision>
   </link>
@@ -182,7 +182,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://44 001/meshes/link3.STL" />
+          filename="meshes/link3.STL" />
       </geometry>
       <material
         name="">
@@ -196,7 +196,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://44 001/meshes/link3.STL" />
+          filename="meshes/link3.STL" />
       </geometry>
     </collision>
   </link>
@@ -240,7 +240,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://44 001/meshes/link4.STL" />
+          filename="meshes/link4.STL" />
       </geometry>
       <material
         name="">
@@ -254,7 +254,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://44 001/meshes/link4.STL" />
+          filename="meshes/link4.STL" />
       </geometry>
     </collision>
   </link>
@@ -298,7 +298,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://44 001/meshes/link5.STL" />
+          filename="meshes/link5.STL" />
       </geometry>
       <material
         name="">
@@ -312,7 +312,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://44 001/meshes/link5.STL" />
+          filename="meshes/link5.STL" />
       </geometry>
     </collision>
   </link>
@@ -356,7 +356,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://44 001/meshes/gripper_link.STL" />
+          filename="meshes/gripper_link.STL" />
       </geometry>
       <material
         name="">
@@ -370,7 +370,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://44 001/meshes/gripper_link.STL" />
+          filename="meshes/gripper_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -409,7 +409,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://44 001/meshes/r_link.STL" />
+          filename="meshes/r_link.STL" />
       </geometry>
       <material
         name="">
@@ -423,7 +423,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://44 001/meshes/r_link.STL" />
+          filename="meshes/r_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -467,7 +467,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://44 001/meshes/r_in_link.STL" />
+          filename="meshes/r_in_link.STL" />
       </geometry>
       <material
         name="">
@@ -481,7 +481,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://44 001/meshes/r_in_link.STL" />
+          filename="meshes/r_in_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -525,7 +525,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://44 001/meshes/r_out_link.STL" />
+          filename="meshes/r_out_link.STL" />
       </geometry>
       <material
         name="">
@@ -539,7 +539,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://44 001/meshes/r_out_link.STL" />
+          filename="meshes/r_out_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -583,7 +583,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://44 001/meshes/l_link.STL" />
+          filename="meshes/l_link.STL" />
       </geometry>
       <material
         name="">
@@ -597,7 +597,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://44 001/meshes/l_link.STL" />
+          filename="meshes/l_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -641,7 +641,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://44 001/meshes/l_in_link.STL" />
+          filename="meshes/l_in_link.STL" />
       </geometry>
       <material
         name="">
@@ -655,7 +655,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://44 001/meshes/l_in_link.STL" />
+          filename="meshes/l_in_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -699,7 +699,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://44 001/meshes/l_out_link.STL" />
+          filename="meshes/l_out_link.STL" />
       </geometry>
       <material
         name="">
@@ -713,12 +713,12 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://44 001/meshes/l_out_link.STL" />
+          filename="meshes/l_out_link.STL" />
       </geometry>
     </collision>
   </link>
   <joint
-    name="l_out_link"
+    name="l_out_joint"
     type="revolute">
     <origin
       xyz="0.00035154 0.016298 0.023984"
@@ -757,7 +757,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://44 001/meshes/camera_connet_link.STL" />
+          filename="meshes/camera_connet_link.STL" />
       </geometry>
       <material
         name="">
@@ -771,7 +771,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://44 001/meshes/camera_connet_link.STL" />
+          filename="meshes/camera_connet_link.STL" />
       </geometry>
     </collision>
   </link>
@@ -788,4 +788,13 @@
     <axis
       xyz="0 0 0" />
   </joint>
+  <transmission name="trans1">
+  <type>transmission_interface/SimpleTransmission</type>
+  <joint name="joint2">
+    <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+  </joint>
+  <actuator name="motor2">
+    <mechanicalReduction>1</mechanicalReduction>
+  </actuator>
+</transmission>
 </robot>
