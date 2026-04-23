@@ -22,7 +22,7 @@ def generate_launch_description():
     if compiled == 'True':
         armpi_ultra_description_package_path = get_package_share_directory('armpi_ultra_description')
     else:
-        armpi_ultra_description_package_path = '/home/ubuntu/ros2_ws/src/simulations/armpi_ultra_description'
+        armpi_ultra_description_package_path = '/home/almudenajin/TFG/tfg_ws/src/simulations/armpi_ultra_description'
     urdf_path = os.path.join(armpi_ultra_description_package_path, 'urdf/armpi_ultra.xacro')
     rviz_config_file = os.path.join(armpi_ultra_description_package_path, 'rviz/view.rviz')
 

@@ -14,9 +14,9 @@ def generate_launch_description():
     # Get the launch directory
     compiled = os.environ['need_compile']
     if compiled == 'True':
-        mentorpi_description_package_path = get_package_share_directory('mentorpi_description')
+        armpi_ultra_description_package_path = get_package_share_directory('armpi_ultra_description')
     else:
-        mentorpi_description_package_path = '/home/ubuntu/ros2_ws/src/simulations/mentorpi_description'
+        armpi_ultra_description_package_path = '/home/almudenajin/TFG/tfg_ws/src/simulations/armpi_ultra_description'
 
     # Create the launch configuration variables
     namespace = LaunchConfiguration('namespace')
@@ -37,7 +37,7 @@ def generate_launch_description():
 
     declare_rviz_config_file_cmd = DeclareLaunchArgument(
         'rviz_config',
-        default_value=os.path.join(mentorpi_description_package_path, 'rviz', 'view.rviz'),
+        default_value=os.path.join(armpi_ultra_description_package_path, 'rviz', 'view.rviz'),
         description='Full path to the RVIZ config file to use')
 
     # Launch rviz
