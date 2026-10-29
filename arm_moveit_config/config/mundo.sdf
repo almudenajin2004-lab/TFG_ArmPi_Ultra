@@ -17,7 +17,8 @@
     </plugin>
 
     <light type="directional" name="sol">
-      <cast_shadows>true</cast_shadows>
+      <!-- Sin sombras: la camara simulada las recalcularia en cada fotograma. -->
+      <cast_shadows>false</cast_shadows>
       <pose>0 0 10 0 0 0</pose>
       <diffuse>0.8 0.8 0.8 1</diffuse>
       <specular>0.2 0.2 0.2 1</specular>

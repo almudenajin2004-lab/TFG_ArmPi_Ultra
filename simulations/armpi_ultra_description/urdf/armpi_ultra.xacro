@@ -335,7 +335,7 @@
         </image>
         <clip>
           <near>0.05</near>
-          <far>5.0</far>
+          <far>1.5</far>  <!-- toda la escena esta a menos de 1 m de la camara -->
         </clip>
       </camera>
     </sensor>

@@ -76,6 +76,20 @@ mismos controladores de `config/ros2_controllers.yaml` (`arm_controller`,
 controladores). `demo.launch.py` sigue sirviendo para trabajar solo con
 MoveIt, sin física ni cámara.
 
+**Gráfica NVIDIA:** en portátiles con gráfica híbrida, `gazebo.launch.py` y
+`demo.launch.py` hacen que Gazebo y RViz dibujen con la NVIDIA
+(`launch/gpu_nvidia.py`). Se activa sola si el driver de NVIDIA está cargado;
+para forzar la integrada: `gpu_nvidia:=false`. Comprobar con `nvidia-smi`
+que aparecen `ruby`/`rviz2` usando la GPU.
+
+**Rendimiento:** si un día no necesitas la ventana de Gazebo, `gui:=false`
+ahorra dibujar la escena dos veces (la cámara se sigue viendo en RViz).
+Si además ves también la cámara en RViz, mejor verla solo en un sitio.
+Si se queda un proceso colgado de una ejecución anterior (p. ej.
+`ros2_control_node` de `demo.launch.py`), los controladores de Gazebo fallan
+con *"Failed to configure controller"*: ciérralo con
+`pkill -f ros2_control_node` y relanza.
+
 Ver la imagen de la cámara (otra terminal, con los mismos `source`):
 ```bash
 ros2 run rqt_image_view rqt_image_view /depth_cam/rgb/image_raw

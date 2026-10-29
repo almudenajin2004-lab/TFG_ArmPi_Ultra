@@ -6,6 +6,7 @@ con el.
 
     ros2 launch arm_moveit_config gazebo.launch.py            # con ventana de Gazebo
     ros2 launch arm_moveit_config gazebo.launch.py gui:=false # Gazebo sin ventana
+    ros2 launch arm_moveit_config gazebo.launch.py gpu_nvidia:=false  # usar la grafica integrada
     ros2 run rqt_image_view rqt_image_view /depth_cam/rgb/image_raw
 
 Como funciona:
@@ -20,6 +21,7 @@ Como funciona:
 No lanzar a la vez que demo.launch.py (serian dos robots/controladores).
 """
 import os
+import sys
 
 import xacro
 from ament_index_python.packages import get_package_share_directory
@@ -32,6 +34,9 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 from moveit_configs_utils import MoveItConfigsBuilder
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from gpu_nvidia import acciones_gpu_nvidia  # noqa: E402
 
 
 def generate_launch_description():
@@ -136,6 +141,8 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
+        # Primero: la grafica NVIDIA para todo lo que se lanza despues.
+        *acciones_gpu_nvidia(),
         DeclareLaunchArgument('gui', default_value='true',
                               description='Abrir la ventana de Gazebo'),
         gazebo_con_ventana,
