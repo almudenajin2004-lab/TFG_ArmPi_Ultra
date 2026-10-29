@@ -55,7 +55,7 @@ def generate_launch_description():
         Node(
             package='tf2_ros',
             executable='static_transform_publisher',
-            name='depth_camera_to_rgb_camera_link',
+            name='rgb_camera_link_to_depth_camera',
             arguments=[
                 '--x', '0',
                 '--y', '0',
@@ -64,8 +64,11 @@ def generate_launch_description():
                 '--qy', '0',
                 '--qz', '0',
                 '--qw', '1',
-                '--frame-id', 'depth_camera_link',
-                '--child-frame-id', 'rgb_camera_link'
+                # rgb_camera_link ya lo publica robot_state_publisher (fijo a link4 en el URDF).
+                # Aquí colgamos el árbol TF del driver de la cámara de ese frame en vez de
+                # dejar "depth_camera_link" como raíz suelta y en conflicto de padre con la URDF.
+                '--frame-id', 'rgb_camera_link',
+                '--child-frame-id', 'depth_camera_link'
             ],
             parameters=[{"transform_publish_delay": LaunchConfiguration('transform_publish_delay')}]
         ),

@@ -1,0 +1,25 @@
+moveit_setup_assistant_config:
+  urdf:
+    package: armpi_ultra_description
+    relative_path: urdf/armpi_ultra.xacro
+  srdf:
+    relative_path: config/armpi_ultra.srdf
+  package_settings:
+    author_name: almudena
+    author_email: almjin04@gmail.com
+    generated_timestamp: 1778603889
+  control_xacro:
+    command:
+      - position
+    state:
+      - position
+      - velocity
+  modified_urdf:
+    xacros:
+      - control_xacro
+  control_xacro:
+    command:
+      - position
+    state:
+      - position
+      - velocity

@@ -1,0 +1,94 @@
+# Medidas reales del entorno (mesa + persona sentada en su taburete), en metros, tal y como
+# se medirian con un metro en el mundo real (alturas siempre desde el SUELO).
+#
+# Disposicion fija de la escena: el brazo esta atornillado en el CENTRO de
+# uno de los laterales de la mesa, justo en el borde, mirando hacia la
+# persona (eje +X de base_link, confirmado por el offset de joint1 en
+# armpi_ultra.xacro). La mesa se extiende hacia atras del brazo (-X) y queda
+# centrada en Y. La persona (con su taburete) esta delante (+X de base_link),
+# mirando hacia el brazo.
+#
+# Quien consume este fichero:
+#   - config/entorno.xacro vuelve a leer este mismo YAML (xacro:load_yaml) y
+#     genera la mesa y las piezas de colision/visual de la persona como
+#     links FIJOS del robot_description. Al ser parte del modelo del robot
+#     (no "objetos de planning scene" aparte), MoveIt los trata igual que al
+#     propio brazo: nunca planifica ni ejecuta una trayectoria que los
+#     atraviese, en simulacion y con el robot real.
+#   - persona.malla es solo la capa VISUAL (bonita). La geometria de
+#     COLISION real de la persona es siempre persona.colision (cajas +
+#     esfera), y no se sustituye nunca por la malla: si la malla faltase o
+#     tuviera huecos, la proteccion debe seguir intacta.
+#
+# Editar numeros aqui y relanzar (no hay paso de "publicar escena" aparte,
+# se regenera solo con el robot_description).
+
+scene:
+  mesa:
+    ancho_y_m: 0.90             # a lo largo del lateral donde esta el brazo
+    fondo_x_m: 0.45             # hacia la persona (eje +X)
+    alto_superficie_m: 0.70     # desde el suelo hasta el tablero
+    grosor_tablero_m: 0.03
+    lado_pata_m: 0.04
+    margen_borde_m: 0.15        # > medio ancho de base_link.STL (~0.145 m):
+                                   # la mesa se extiende tambien un poco en
+                                   # +X (hacia la persona) para que la base
+                                   # del robot no quede colgando en el borde,
+                                   # sin aparentar que se va a caer.
+    # Altura del tablero medida en el frame de base_link (origen del brazo).
+    # base_link.STL baja 6.5 mm por debajo de su propio origen, asi que el
+    # tablero va 6.5 mm mas abajo: la base apoya justo encima, sin
+    # atravesarlo (antes, con 0.0, se solapaban y MoveIt lo veia como choque).
+    z_tablero_m: -0.0065
+    color_rgba: [0.78, 0.63, 0.43, 1.0]      # madera clara
+
+  persona:
+    # distancia_m / giro_deg son a proposito los unicos dos numeros que se
+    # tocan para "decidir viendo" en RViz: la mesa no se mueve,
+    # solo donde se sienta la persona y hacia donde mira.
+    #
+    # Con mesa.fondo_x_m=0.45 la boca queda a ~0.50 m del origen del brazo,
+    # todavia por encima del alcance medido (~0.31-0.34 m): no es alcanzable
+    # hoy. Pendiente (no ahora): acercar/elevar el punto de anclaje del
+    # brazo para una version realmente alcanzable (ver COMO_LANZAR.md).
+    distancia_m: 0.45
+    giro_deg: 180.0              # 180 = mirando hacia el brazo (-X)
+    # Altura del asiento del taburete que ya trae maniqui_sentada.stl (ya no
+    # hay silla aparte: el maniqui la incluye). Las piezas de colision de la
+    # persona se apilan a partir de esta altura.
+    alto_asiento_m: 0.45
+    altura_total_m: 1.70         # de pie; solo se usa como referencia/escala
+    color_rgba: [0.847, 0.812, 0.769, 1.0]   # neutro
+
+    malla:
+      # Deja "archivo" vacio hasta que el STL este listo: sin malla, la
+      # persona se ve con las propias cajas/esfera de colision (simple pero
+      # ya con forma humana). En cuanto exista
+      # armpi_ultra_description/meshes/maniqui_sentada.stl, pon aqui su
+      # nombre para activar la version realista.
+      archivo: "maniqui_mia.stl"   # maniqui con cara (lleva su propia silla)
+      # Anterior: maniqui_sentada.stl con escala 1.29 y offset_xyz_m [0.14, 0.0, -0.45].
+      # maniqui_mia.stl viene normalizado a 1 m de alto, pies en z=0,
+      # mirando a -Y y con el asiento de su silla a ~0.375 m (mas alto en
+      # proporcion que el anterior, 0.355):
+      #   escala 1.20 -> asiento a 0.45 m (= persona.alto_asiento_m), cabeza ~1.20 m
+      #   giro 90 deg -> pasa a mirar a +X local (hacia el brazo con giro_deg=180)
+      #   z = -0.45   -> el link cuelga a la altura del asiento; baja los pies al suelo
+      #   x = +0.038  -> centra el TORSO de la malla sobre la caja de colision del torso
+      escala: 1.20
+      offset_xyz_m: [0.038, 0.0, -0.45]  # ajuste fino de posicion de la malla
+      offset_rpy_deg: [0.0, 0.0, 90.0]   # ajuste fino de orientacion
+
+    colision:
+      # Piezas separadas (no una sola caja) para poder, mas adelante,
+      # permitir que el tenedor se acerque solo a la cabeza sin desactivar
+      # la proteccion del torso.
+      piernas:
+        ancho_m: 0.45
+        fondo_m: 0.45
+        alto_m: 0.12
+      torso:
+        ancho_m: 0.40
+        fondo_m: 0.30
+        alto_m: 0.50
+      cabeza_radio_m: 0.10

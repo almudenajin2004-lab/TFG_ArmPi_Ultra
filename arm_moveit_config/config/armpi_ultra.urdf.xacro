@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="armpi_ultra">
+    <xacro:arg name="initial_positions_file" default="initial_positions.yaml" />
+    <!-- true solo desde launch/gazebo.launch.py (ver armpi_ultra.ros2_control.xacro) -->
+    <xacro:arg name="sim_gazebo" default="false" />
+
+    <!-- Import armpi_ultra urdf file -->
+    <xacro:include filename="$(find armpi_ultra_description)/urdf/armpi_ultra.xacro" />
+
+    <!-- Import control_xacro -->
+    <xacro:include filename="armpi_ultra.ros2_control.xacro" />
+
+    <!-- Entorno (mesa + persona con su taburete), medidas en scene_params.yaml.
+         Colgado de base_link: MoveIt lo trata igual que al propio robot y
+         nunca planifica una trayectoria que lo atraviese. -->
+    <xacro:include filename="entorno.xacro" />
+
+    <xacro:armpi_ultra_ros2_control name="FakeSystem" initial_positions_file="$(arg initial_positions_file)" sim_gazebo="$(arg sim_gazebo)"/>
+    <xacro:armpi_ultra_entorno parent="base_link"/>
+
+    <!-- Solo para Gazebo: fija el robot (y con el, mesa y persona) al mundo
+         de Gazebo y carga gz_ros2_control con los controladores de
+         ros2_controllers.yaml. world_joint es identidad, igual que el
+         virtual_joint de la SRDF, para que RViz/MoveIt y el TF coincidan; la
+         altura de la mesa sobre el suelo de Gazebo la pone el launch al
+         insertar el modelo (-z). -->
+    <xacro:if value="$(arg sim_gazebo)">
+        <link name="world"/>
+        <joint name="world_joint" type="fixed">
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <parent link="world"/>
+            <child link="base_link"/>
+        </joint>
+        <gazebo>
+            <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+                <parameters>$(find arm_moveit_config)/config/ros2_controllers.yaml</parameters>
+            </plugin>
+        </gazebo>
+    </xacro:if>
+
+</robot>

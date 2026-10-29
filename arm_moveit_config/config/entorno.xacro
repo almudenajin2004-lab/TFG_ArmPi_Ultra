@@ -1,0 +1,234 @@
+<?xml version="1.0"?>
+<!--
+Mesa + persona (sentada en su propio taburete) del entorno de trabajo, generadas a partir de
+config/scene_params.yaml (unica fuente de verdad de las medidas).
+
+Se definen como links FIJOS del propio robot_description (no como objetos
+de la planning scene publicados a parte por un script): al estar en el
+mismo modelo que el brazo, MoveIt los trata igual que a los propios links
+del robot y nunca planifica/ejecuta una trayectoria que los atraviese,
+tanto en simulacion como con el robot real. Llevan <inertial> con valores
+de relleno (no medidos) para poder anadir despues un mundo de Gazebo con
+fisica real sin tener que rehacer esta geometria.
+
+La malla visual de la persona (persona.malla.archivo) es solo la capa
+bonita: la colision real de la persona son siempre las cajas/esfera de
+persona.colision, que no se sustituyen nunca por la malla.
+-->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Unica fuente de verdad: vuelve a leer el mismo YAML que usaba antes
+       publish_scene.py. -->
+  <xacro:property name="scene" value="${xacro.load_yaml('$(find arm_moveit_config)/config/scene_params.yaml')['scene']}"/>
+  <xacro:property name="mesa" value="${scene['mesa']}"/>
+  <xacro:property name="persona" value="${scene['persona']}"/>
+  <xacro:property name="persona_malla" value="${persona['malla']}"/>
+  <xacro:property name="persona_col" value="${persona['colision']}"/>
+
+  <xacro:property name="mesa_rgba" value="${' '.join(map(str, mesa['color_rgba']))}"/>
+  <xacro:property name="persona_rgba" value="${' '.join(map(str, persona['color_rgba']))}"/>
+
+  <!-- La superficie de la mesa esta en z = mesa.z_tablero_m del frame de
+       base_link (un pelin por debajo de 0: la malla de la base baja 6.5 mm
+       por debajo de su origen). El suelo real queda alto_superficie_m mas
+       abajo. -->
+  <xacro:property name="floor_z" value="${mesa['z_tablero_m'] - mesa['alto_superficie_m']}"/>
+
+  <!-- ===================== MESA ===================== -->
+  <!-- Nunca rota: su orientacion es parte de la disposicion fija de la
+       escena (el brazo en el borde, la mesa detras). -->
+  <xacro:property name="tab_size_x" value="${mesa['fondo_x_m'] + mesa['margen_borde_m']}"/>
+  <xacro:property name="tab_center_x" value="${(mesa['margen_borde_m'] - mesa['fondo_x_m']) / 2.0}"/>
+  <xacro:property name="tab_size_y" value="${mesa['ancho_y_m']}"/>
+  <xacro:property name="tab_center_z" value="${-mesa['grosor_tablero_m'] / 2.0}"/>
+  <xacro:property name="patas_mesa_alto" value="${mesa['alto_superficie_m'] - mesa['grosor_tablero_m']}"/>
+  <xacro:property name="patas_mesa_center_z" value="${-(mesa['alto_superficie_m'] + mesa['grosor_tablero_m']) / 2.0}"/>
+  <xacro:property name="patas_mesa_off_x" value="${tab_size_x / 2.0 - mesa['lado_pata_m'] / 2.0}"/>
+  <xacro:property name="patas_mesa_off_y" value="${tab_size_y / 2.0 - mesa['lado_pata_m'] / 2.0}"/>
+
+  <!-- Macros a nivel superior: xacro no permite definir un xacro:macro
+       dentro de un <link>, solo invocarlo ahi. -->
+  <xacro:macro name="pata_mesa" params="sx sy">
+    <visual>
+      <origin rpy="0 0 0" xyz="${tab_center_x + sx * patas_mesa_off_x} ${sy * patas_mesa_off_y} ${patas_mesa_center_z}"/>
+      <geometry>
+        <box size="${mesa['lado_pata_m']} ${mesa['lado_pata_m']} ${patas_mesa_alto}"/>
+      </geometry>
+      <material name="mesa_material"><color rgba="${mesa_rgba}"/></material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="${tab_center_x + sx * patas_mesa_off_x} ${sy * patas_mesa_off_y} ${patas_mesa_center_z}"/>
+      <geometry>
+        <box size="${mesa['lado_pata_m']} ${mesa['lado_pata_m']} ${patas_mesa_alto}"/>
+      </geometry>
+    </collision>
+  </xacro:macro>
+
+  <!-- Todo lo que sigue se agrupa en un macro parametrizado por "parent"
+       para poder instanciarlo de dos formas: colgado de base_link (junto
+       al brazo, en armpi_ultra.urdf.xacro) o colgado de "world" (vista
+       aislada del entorno, sin el brazo, en entorno_solo.urdf.xacro). -->
+  <xacro:macro name="armpi_ultra_entorno" params="parent:=base_link">
+
+  <link name="mesa_link">
+    <inertial>
+      <!-- Relleno, no medido: suficiente para un link fijo; a revisar si
+           algun dia se anade fisica de Gazebo. -->
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="5.0"/>
+      <inertia ixx="0.3" ixy="0" ixz="0" iyy="0.3" iyz="0" izz="0.3"/>
+    </inertial>
+
+    <visual>
+      <origin rpy="0 0 0" xyz="${tab_center_x} 0 ${tab_center_z}"/>
+      <geometry>
+        <box size="${tab_size_x} ${tab_size_y} ${mesa['grosor_tablero_m']}"/>
+      </geometry>
+      <material name="mesa_material"><color rgba="${mesa_rgba}"/></material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="${tab_center_x} 0 ${tab_center_z}"/>
+      <geometry>
+        <box size="${tab_size_x} ${tab_size_y} ${mesa['grosor_tablero_m']}"/>
+      </geometry>
+    </collision>
+
+    <xacro:pata_mesa sx="1" sy="1"/>
+    <xacro:pata_mesa sx="1" sy="-1"/>
+    <xacro:pata_mesa sx="-1" sy="1"/>
+    <xacro:pata_mesa sx="-1" sy="-1"/>
+  </link>
+
+  <joint name="mesa_joint" type="fixed">
+    <!-- mesa_link tiene su z=0 en la superficie del tablero. -->
+    <origin rpy="0 0 0" xyz="0 0 ${mesa['z_tablero_m']}"/>
+    <parent link="${parent}"/>
+    <child link="mesa_link"/>
+  </joint>
+
+  <!-- ===================== PERSONA ===================== -->
+  <!-- Posicion y giro: los dos unicos numeros pensados para ajustar
+       "viendo" la escena en RViz (scene.persona.distancia_m / giro_deg).
+       Ya no hay silla aparte: el STL del maniqui trae su propio taburete
+       (solo visual); persona.alto_asiento_m es la altura de ese asiento. -->
+  <xacro:property name="giro_rad" value="${persona['giro_deg'] * pi / 180.0}"/>
+
+  <!-- Persona: colision siempre en piezas separadas (piernas / torso /
+       cabeza), para poder mas adelante permitir que el tenedor se acerque
+       solo a la cabeza sin tocar la proteccion del torso. -->
+  <xacro:property name="piernas_center_z" value="${floor_z + persona['alto_asiento_m'] + persona_col['piernas']['alto_m'] / 2.0}"/>
+  <xacro:property name="torso_center_z" value="${floor_z + persona['alto_asiento_m'] + persona_col['piernas']['alto_m'] + persona_col['torso']['alto_m'] / 2.0}"/>
+  <xacro:property name="cabeza_center_z" value="${floor_z + persona['alto_asiento_m'] + persona_col['piernas']['alto_m'] + persona_col['torso']['alto_m'] + persona_col['cabeza_radio_m']}"/>
+  <!-- true si todavia no hay malla real -> las propias cajas/esfera de
+       colision hacen tambien de visual (simple pero con forma humana). -->
+  <xacro:property name="sin_malla" value="${persona_malla['archivo'] == ''}"/>
+
+  <link name="persona_piernas_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="8.0"/>
+      <inertia ixx="0.05" ixy="0" ixz="0" iyy="0.05" iyz="0" izz="0.05"/>
+    </inertial>
+    <xacro:if value="${sin_malla}">
+      <visual>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <geometry>
+          <box size="${persona_col['piernas']['fondo_m']} ${persona_col['piernas']['ancho_m']} ${persona_col['piernas']['alto_m']}"/>
+        </geometry>
+        <material name="persona_material"><color rgba="${persona_rgba}"/></material>
+      </visual>
+    </xacro:if>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="${persona_col['piernas']['fondo_m']} ${persona_col['piernas']['ancho_m']} ${persona_col['piernas']['alto_m']}"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="persona_piernas_joint" type="fixed">
+    <origin rpy="0 0 ${giro_rad}" xyz="${persona['distancia_m']} 0 ${piernas_center_z}"/>
+    <parent link="${parent}"/>
+    <child link="persona_piernas_link"/>
+  </joint>
+
+  <link name="persona_torso_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="30.0"/>
+      <inertia ixx="0.3" ixy="0" ixz="0" iyy="0.3" iyz="0" izz="0.3"/>
+    </inertial>
+    <xacro:if value="${sin_malla}">
+      <visual>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <geometry>
+          <box size="${persona_col['torso']['fondo_m']} ${persona_col['torso']['ancho_m']} ${persona_col['torso']['alto_m']}"/>
+        </geometry>
+        <material name="persona_material"><color rgba="${persona_rgba}"/></material>
+      </visual>
+    </xacro:if>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="${persona_col['torso']['fondo_m']} ${persona_col['torso']['ancho_m']} ${persona_col['torso']['alto_m']}"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="persona_torso_joint" type="fixed">
+    <origin rpy="0 0 ${giro_rad}" xyz="${persona['distancia_m']} 0 ${torso_center_z}"/>
+    <parent link="${parent}"/>
+    <child link="persona_torso_link"/>
+  </joint>
+
+  <link name="persona_cabeza_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="5.0"/>
+      <inertia ixx="0.02" ixy="0" ixz="0" iyy="0.02" iyz="0" izz="0.02"/>
+    </inertial>
+    <xacro:if value="${sin_malla}">
+      <visual>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <geometry>
+          <sphere radius="${persona_col['cabeza_radio_m']}"/>
+        </geometry>
+        <material name="persona_material"><color rgba="${persona_rgba}"/></material>
+      </visual>
+    </xacro:if>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <sphere radius="${persona_col['cabeza_radio_m']}"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="persona_cabeza_joint" type="fixed">
+    <origin rpy="0 0 ${giro_rad}" xyz="${persona['distancia_m']} 0 ${cabeza_center_z}"/>
+    <parent link="${parent}"/>
+    <child link="persona_cabeza_link"/>
+  </joint>
+
+  <!-- Malla realista, solo visual (sin <collision>): se activa poniendo
+       scene.persona.malla.archivo en scene_params.yaml. Colgada a la altura
+       del asiento; offset_xyz_m/offset_rpy_deg son el ajuste fino una vez
+       se vea el STL real en RViz. -->
+  <xacro:unless value="${sin_malla}">
+    <link name="persona_visual_link">
+      <visual>
+        <origin rpy="${persona_malla['offset_rpy_deg'][0] * pi / 180.0} ${persona_malla['offset_rpy_deg'][1] * pi / 180.0} ${persona_malla['offset_rpy_deg'][2] * pi / 180.0}"
+                xyz="${persona_malla['offset_xyz_m'][0]} ${persona_malla['offset_xyz_m'][1]} ${persona_malla['offset_xyz_m'][2]}"/>
+        <geometry>
+          <mesh filename="file://$(find armpi_ultra_description)/meshes/${persona_malla['archivo']}" scale="${persona_malla['escala']} ${persona_malla['escala']} ${persona_malla['escala']}"/>
+        </geometry>
+        <material name="persona_material"><color rgba="${persona_rgba}"/></material>
+      </visual>
+    </link>
+    <joint name="persona_visual_joint" type="fixed">
+      <origin rpy="0 0 ${giro_rad}" xyz="${persona['distancia_m']} 0 ${floor_z + persona['alto_asiento_m']}"/>
+      <parent link="${parent}"/>
+      <child link="persona_visual_link"/>
+    </joint>
+  </xacro:unless>
+
+  </xacro:macro>
+
+</robot>

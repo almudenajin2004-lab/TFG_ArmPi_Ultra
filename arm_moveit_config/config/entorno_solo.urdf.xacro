@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!--
+Wrapper para ver SOLO la mesa + persona (con su taburete) en RViz, sin el brazo, para
+poder ajustar "viendo" el entorno (ver launch/entorno_solo.launch.py).
+La geometria real vive en entorno.xacro, que es la misma que se usa junto
+al brazo (ver config/armpi_ultra.urdf.xacro) -> una sola fuente de verdad.
+-->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="entorno">
+
+  <link name="world"/>
+
+  <xacro:include filename="entorno.xacro" />
+  <xacro:armpi_ultra_entorno parent="world"/>
+
+</robot>
